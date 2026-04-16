@@ -1,5 +1,9 @@
 import Stripe from 'stripe';
 
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing STRIPE_SECRET_KEY');
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
@@ -20,8 +24,8 @@ export default async function handler(req, res) {
         price: item.price,
         quantity: item.quantity,
       })),
-      success_url: `${req.headers.origin || 'https://project-vplml.vercel.app'}/success`,
-      cancel_url: `${req.headers.origin || 'https://project-vplml.vercel.app'}`,
+      success_url: 'https://project-vplml.vercel.app/success',
+      cancel_url: 'https://project-vplml.vercel.app',
     });
 
     return res.status(200).json({
