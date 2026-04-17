@@ -27,22 +27,16 @@ export default async function handler(req, res) {
     }
 
     const line_items = items.map((item) => {
-      const unitAmount = Math.round(Number(item.price) * 100);
+      if (!item.price || typeof item.price !== 'string' || !item.price.startsWith('price_')) {
+        throw new Error('Invalid item data: missing or invalid Stripe Price ID');
+      }
 
-      if (!item.name || !unitAmount || unitAmount <= 0 || !item.quantity) {
-        throw new Error('Invalid item data');
+      if (!item.quantity || item.quantity <= 0) {
+        throw new Error('Invalid item data: missing or invalid quantity');
       }
 
       return {
-        price_data: {
-          currency: 'eur',
-          product_data: {
-            name: item.name,
-            description: item.reference ? `Réf: ${item.reference}` : undefined,
-            images: item.imageUrl ? [item.imageUrl] : undefined,
-          },
-          unit_amount: unitAmount,
-        },
+        price: item.price,
         quantity: item.quantity,
       };
     });
